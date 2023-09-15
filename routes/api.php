@@ -21,7 +21,7 @@ Route::group([
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
     Route::get('showuser/{id}', [AuthController::class, 'show']);
-    Route::Post('sendfeedback', [AuthController::class, 'sendFeedback']);
+    Route::post('sendfeedback', [AuthController::class, 'sendFeedback']);
     Route::get('send-mail', [AuthController::class, 'index']);
     Route::put('updateuser/{id}', [AuthController::class, 'update']);
     Route::delete('deleteuser/{id}', [AuthController::class, 'destroy']);

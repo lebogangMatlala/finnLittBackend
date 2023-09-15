@@ -110,7 +110,7 @@ class AuthController extends Controller
             Mail::to('lebogang@saatplay.com')->send(new MyMail($data));
             return response()->json(['Great! Successfully send in your mail']);
         } catch (Exception $e) {
-            return response()->json(['Sorry! Please try again latter']);
+            return response()->json(['Sorry! Please try again later',$e]);
         }
 
         //return response()->json($message);
