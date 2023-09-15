@@ -98,11 +98,11 @@ class AuthController extends Controller
 
     public function sendFeedback(Request $request)
     {
-        $message=$request->feedback;
+        $message = $request->feedback;
 
         $data = [
             "subject" => "FinnLittApp Feedback",
-            "title"=>"Users Feedback",
+            "title" => "Users Feedback",
             "body" => "Hello Admin,this is the feedback we got from the user,$message"
         ];
         // MailNotify class that is extend from Mailable class.
@@ -159,4 +159,21 @@ class AuthController extends Controller
     //      dd("Email is sent successfully.");
 //     return 'Email sent successfully!';
 // }
+
+    public function destroy($id)
+    {
+        // Find the user by ID
+        $user = User::find($id);
+
+        // Check if the user exists
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        // Delete the user
+        $user->delete();
+
+        // Return a response indicating success
+        return response()->json(['message' => 'User deleted successfully'], 200);
+    }
 }
