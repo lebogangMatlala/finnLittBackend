@@ -7,12 +7,14 @@ use App\Mail\MyMail;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Mail;
 
 use Exception;
+use Illuminate\Support\Carbon as SupportCarbon;
 
 class AuthController extends Controller
 {
@@ -32,6 +34,7 @@ class AuthController extends Controller
                 'phoneNum' => $request->phoneNum,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
+                'email_verified_at'=> Carbon::now()
             ]);
 
             Auth::login($user);
@@ -41,7 +44,7 @@ class AuthController extends Controller
             return response()->json(['message' => 'Database error'], 500);
         } catch (ValidationException $e) {
             return response()->json(['message' => $e->getMessage()], 422);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json(['message' => 'Registration error'], 500);
         }
 
@@ -92,7 +95,7 @@ class AuthController extends Controller
             Mail::to('lebogang@saatplay.com')->send(new FeedbackMail($data));
             return response()->json(['Great! Successfully send in your mail']);
         } catch (Exception $e) {
-            return response()->json(['Sorry! Please try again latter']);
+            return response()->json(['Sorry! Please try again latter',$e]);
         }
     }
 
@@ -103,14 +106,14 @@ class AuthController extends Controller
         $data = [
             "subject" => "FinnLittApp Feedback",
             "title" => "Users Feedback",
-            "body" => "Hello Admin,this is the feedback we got from the user,$message"
+            "body" => "$message"
         ];
         // MailNotify class that is extend from Mailable class.
         try {
-            Mail::to('lebogang@saatplay.com')->send(new MyMail($data));
+            Mail::to('info@finnlitt.co.za')->send(new MyMail($data));
             return response()->json(['Great! Successfully send in your mail']);
         } catch (Exception $e) {
-            return response()->json(['Sorry! Please try again later',$e]);
+            return response()->json(['Sorry! Please try again later', $e]);
         }
 
         //return response()->json($message);
