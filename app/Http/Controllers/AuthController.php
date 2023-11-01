@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Mail\FeedbackMail;
+use App\Mail\ForgotPassword;
 use App\Mail\MyMail;
 use Illuminate\Database\QueryException;
+use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Carbon;
@@ -15,6 +17,9 @@ use Mail;
 
 use Exception;
 use Illuminate\Support\Carbon as SupportCarbon;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Password;
+use Monolog\Handler\SendGridHandler;
 
 class AuthController extends Controller
 {
@@ -34,7 +39,7 @@ class AuthController extends Controller
                 'phoneNum' => $request->phoneNum,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
-                'email_verified_at'=> Carbon::now()
+                'email_verified_at' => Carbon::now()
             ]);
 
             Auth::login($user);
@@ -77,27 +82,27 @@ class AuthController extends Controller
     }
 
 
-    public function index()
-    {
-        // $mailData = [
-        //     'title' => 'Mail from ItSolutionStuff.com',
-        //     'body' => 'This is for testing email using smtp.'
-        // ];
-        // Mail::to('lebogang@saatplay.com')->send(new FeedbackMail($mailData));
+    // public function index()
+    // {
+    //     // $mailData = [
+    //     //     'title' => 'Mail from ItSolutionStuff.com',
+    //     //     'body' => 'This is for testing email using smtp.'
+    //     // ];
+    //     // Mail::to('lebogang@saatplay.com')->send(new FeedbackMail($mailData));
 
-        // dd("Email is sent successfully.");
-        $data = [
-            "subject" => "Tutorial Mail",
-            "body" => "Hello friends, Welcome to Metrowired Tutorial Mail Delivery!"
-        ];
-        // MailNotify class that is extend from Mailable class.
-        try {
-            Mail::to('lebogang@saatplay.com')->send(new FeedbackMail($data));
-            return response()->json(['Great! Successfully send in your mail']);
-        } catch (Exception $e) {
-            return response()->json(['Sorry! Please try again latter',$e]);
-        }
-    }
+    //     // dd("Email is sent successfully.");
+    //     $data = [
+    //         "subject" => "Tutorial Mail",
+    //         "body" => "Hello friends, Welcome to Metrowired Tutorial Mail Delivery!"
+    //     ];
+    //     // MailNotify class that is extend from Mailable class.
+    //     try {
+    //         Mail::to('lebogang@saatplay.com')->send(new FeedbackMail($data));
+    //         return response()->json(['Great! Successfully send in your mail']);
+    //     } catch (Exception $e) {
+    //         return response()->json(['Sorry! Please try again latter', $e]);
+    //     }
+    // }
 
     public function sendFeedback(Request $request)
     {
@@ -120,6 +125,67 @@ class AuthController extends Controller
 
     }
 
+    public function sendResetLinkEmail(Request $request)
+    {
+        //$request->validate(['email' => 'required|email']);
+
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|min:6',
+            'confirmpassword' => 'required|min:6',
+        ]);
+
+        $email = $request->input('email');
+
+        $user = User::where('email', $email)->first();
+
+        //dump($user->email);
+        if ($user) {
+            //$token = Password::createToken($user);
+
+            if ($request->has('password')) {
+                $user->password = Hash::make($request->input('password'));
+            }
+            $user->save();
+
+            $data = [
+                "subject" => "Password Reset",
+                "title" => "Password Reset",
+                "body" => "$user->name",
+                // "username"=> "$user->name"
+
+            ];
+            // MailNotify class that is extend from Mailable class.
+            try {
+                Mail::to($user->email)->send(new ForgotPassword($data));
+                return response()->json(['message' =>'Great! Your password has been reset successfully. You can now log in with your new password.']);
+            } catch (Exception $e) {
+                return response()->json(['message' =>'Sorry! Please try again later', $e]);
+            }
+
+        } else {
+            return response()->json(['message' => 'User not found in the system. Please check the email address or register if you are a new user.'], 400);
+        }
+    }
+
+    public function sendResetLinkPhone(Request $request)
+    {
+
+
+        $email = $request->input('email');
+
+        $data = [
+            "subject" => "Password reset",
+            "title" => "Reset your password",
+        ];
+        // MailNotify class that is extend from Mailable class.
+        try {
+            Mail::to($email)->send(new ForgotPassword($data));
+            return response()->json(['Great! Successfully send in your mail']);
+        } catch (Exception $e) {
+            return response()->json(['Sorry! Please try again later', $e]);
+        }
+    }
     public function update(Request $request, $id)
     {
         // Validate user input
@@ -150,18 +216,6 @@ class AuthController extends Controller
         return response()->json(['message' => 'User information updated successfully']);
     }
 
-    //     public function sendEmail()
-// {
-//     $mailData = [
-//             'title' => 'Mail from ItSolutionStuff.com',
-//             'body' => 'This is for testing email using smtp.'
-//         ];
-
-    //     Mail::to('lebogang@saatplay.com')->send(new AdminMail($mailData));
-
-    //      dd("Email is sent successfully.");
-//     return 'Email sent successfully!';
-// }
 
     public function destroy($id)
     {
