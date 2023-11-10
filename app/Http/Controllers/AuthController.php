@@ -147,7 +147,7 @@ class AuthController extends Controller
                 $user->password = Hash::make($request->input('password'));
             }
             $user->save();
-
+            $useremail=$user->email;
             $data = [
                 "subject" => "Password Reset",
                 "title" => "Password Reset",
@@ -155,12 +155,14 @@ class AuthController extends Controller
                 // "username"=> "$user->name"
 
             ];
+
+
             // MailNotify class that is extend from Mailable class.
             try {
-                Mail::to($user->email)->send(new ForgotPassword($data));
+                Mail::to($useremail)->send(new ForgotPassword($data));
                 return response()->json(['message' =>'Great! Your password has been reset successfully. You can now log in with your new password.']);
             } catch (Exception $e) {
-                return response()->json(['message' =>'Sorry! Please try again later', $e]);
+                return response()->json(['message' =>'Sorry! Please try again later','error' => $e->getMessage()]);
             }
 
         } else {

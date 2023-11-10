@@ -27,7 +27,7 @@ Route::group([
     Route::get('send-mail', [AuthController::class, 'index']);
     Route::put('updateuser/{id}', [AuthController::class, 'update']);
     Route::delete('deleteuser/{id}', [AuthController::class, 'destroy']);
-    Route::post('/forgotPassword', [AuthController::class, 'sendResetLinkEmail']);
+    Route::post('forgotPassword', [AuthController::class, 'sendResetLinkEmail']);
     //Route::post('/reset-password', ResetPasswordController::class, 'reset');
     // Send reset link email
     Route::post('/password/reset/send', [ResetPasswordController::class, 'sendResetLinkEmail'])->name('password.reset');
