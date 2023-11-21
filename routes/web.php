@@ -19,3 +19,28 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/terms-and-conditions', function () {
+    return view('terms-and-conditions');
+});
+
+Route::get('/user-privacy-policy', function () {
+    return view('user-privacy-policy');
+});
+
+Route::get('/contact', function () {
+    return view('contact-us');
+});
+
+
+//Post Route
+
+Route::post('/contact', function () {
+    $data = request(['name', 'email', 'subject', 'message' ]);
+
+        \Illuminate\support\Facades\Mail::to(users:'joshuaratau@gmail.com')
+        ->send(new \App\Maail\ContactMe($data));
+
+        return redirect ('contact-us');
+});
+

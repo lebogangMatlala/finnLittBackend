@@ -1,0 +1,90 @@
+html,body{
+  overflow-x: hidden;
+
+   
+}
+
+   .footer-shadow {
+    box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.1);  
+    height: 150px;
+    text-align: center;        
+    flex-direction: column;
+    justify-content: center; 
+
+  }
+
+  .gradient-bg {
+    background: linear-gradient(to bottom, rgb(224, 247, 255), white);
+}
+
+
+.mobile {
+    margin-bottom: 20px;
+    text-align: center; 
+    display: flex;
+    flex-direction: column;
+    justify-content: center; 
+
+}
+
+.card{
+  width: 25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center; 
+}
+
+.card-body{
+ 
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; 
+  align-items: center; 
+
+}
+
+
+.special {
+  color: #CC6D3D;        /* or any color you desire */
+  font-weight: 800 ; /* can also use numeric values like 700 */
+}
+
+
+.container {
+  padding-left: 10%; 
+  padding-right: 10%; 
+  
+}
+
+a.custom-link{
+  color: grey;
+  text-decoration: none;
+  
+
+}
+
+
+
+/* Mobile devices */
+@media (max-width: 768px) {
+  .container {
+ 
+    
+    justify-content: center; /* centers horizontally */
+    align-items: center; /* centers vertically */
+   
+  }
+}
+
+/* Tablet devices */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .container {
+   
+  
+    justify-content: center; /* centers horizontally */
+    align-items: center; /* centers vertically */
+
+  }
+}
