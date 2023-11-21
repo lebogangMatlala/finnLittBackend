@@ -34,7 +34,7 @@ class ForgotPassword extends Mailable
      */
     public function build()
     {
-        return $this->from('southafricaatplay@gmail.com', 'Password Reset')
+        return $this->from('info@finnlitt.co.za', 'Password Reset')
             ->subject($this->data["subject"])
             ->view('emails.forgotPassword')->with("data", $this->data);
     }
