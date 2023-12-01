@@ -12,13 +12,17 @@ use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\ValidationException;
 use Mail;
+use Illuminate\Support\Str;
 
 use Exception;
 use Illuminate\Support\Carbon as SupportCarbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\View;
 use Monolog\Handler\SendGridHandler;
 
 class AuthController extends Controller
@@ -147,7 +151,7 @@ class AuthController extends Controller
                 $user->password = Hash::make($request->input('password'));
             }
             $user->save();
-            $useremail=$user->email;
+            $useremail = $user->email;
             $data = [
                 "subject" => "Password Reset",
                 "title" => "Password Reset",
@@ -160,9 +164,9 @@ class AuthController extends Controller
             // MailNotify class that is extend from Mailable class.
             try {
                 Mail::to($useremail)->send(new ForgotPassword($data));
-                return response()->json(['message' =>'Great! Your password has been reset successfully. You can now log in with your new password.']);
+                return response()->json(['message' => 'Great! Your password has been reset successfully. You can now log in with your new password.']);
             } catch (Exception $e) {
-                return response()->json(['message' =>'Sorry! Please try again later','error' => $e->getMessage()]);
+                return response()->json(['message' => 'Sorry! Please try again later', 'error' => $e->getMessage()]);
             }
 
         } else {
@@ -170,24 +174,7 @@ class AuthController extends Controller
         }
     }
 
-    public function sendResetLinkPhone(Request $request)
-    {
 
-
-        $email = $request->input('email');
-
-        $data = [
-            "subject" => "Password reset",
-            "title" => "Reset your password",
-        ];
-        // MailNotify class that is extend from Mailable class.
-        try {
-            Mail::to($email)->send(new ForgotPassword($data));
-            return response()->json(['Great! Successfully send in your mail']);
-        } catch (Exception $e) {
-            return response()->json(['Sorry! Please try again later', $e]);
-        }
-    }
     public function update(Request $request, $id)
     {
         // Validate user input
@@ -235,4 +222,82 @@ class AuthController extends Controller
         // Return a response indicating success
         return response()->json(['message' => 'User deleted successfully'], 200);
     }
+
+    public function showResetForm($token)
+    {
+        return view('password-reset')->with(compact('token'));
+    }
+
+
+    public function successPage()
+    {
+        return view('success');
+    }
+    public function forgotPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:users,email',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+        $token = Str::random(60);
+        $user->update([
+            'reset_token' => $token,
+            'remember_token' => Str::random(10), // Generate a new remember token
+        ]);
+
+        $resetUrl = env('FRONTEND_URL') . '/password/reset/' . $token;
+
+        $useremail = $user->email;
+        $data = [
+            "subject" => "Password Reset",
+            "title" => "Password Reset",
+            "body" => "$user->name",
+            "token" => "$token"
+
+        ];
+
+        // TODO: Send email with password reset link including $token
+        try {
+            Mail::to($useremail)->send(new ForgotPassword($data));
+            return response()->json(['message' => 'Great! An email has been sent for password reset.Please check your email and follow the instructions to reset your password.', 'token' => $token]);
+        } catch (Exception $e) {
+            return response()->json(['message' => 'Sorry! Please try again later', 'error' => $e->getMessage()]);
+        }
+
+        //return response()->json(['message' => 'Password reset link sent successfully']);
+    }
+
+    public function resetPassword(Request $request, $token)
+    {
+        // Validate the request
+        $validator = Validator::make($request->all(), [
+            'password' => 'required|min:6|confirmed',
+        ], [
+            'password.required' => 'The password field is required.',
+            'password.min' => 'Password must be at least 6 characters.',
+            'password.confirmed' => 'Password confirmation does not match.',
+        ]);
+
+        // Check if validation fails
+        if ($validator->fails()) {
+            // If it's an API request, return JSON response with validation errors
+            if ($request->expectsJson()) {
+                return response()->json(['errors' => $validator->errors()], 422);
+            }
+
+            // If it's a web request, redirect back with errors
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        // Your logic to update the user's password
+
+        // If successful, return a success message
+        return Redirect::to('/success-page')->with('success', 'Password reset successfully');
+
+
+    }
+
+
+
 }

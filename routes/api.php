@@ -28,17 +28,24 @@ Route::group([
     Route::put('updateuser/{id}', [AuthController::class, 'update']);
     Route::delete('deleteuser/{id}', [AuthController::class, 'destroy']);
     Route::post('forgotPassword', [AuthController::class, 'sendResetLinkEmail']);
+    //ResetbPassword
+    Route::post('password/forgot', [AuthController::class, 'forgotPassword']);
+    // Route::post('password/reset/{token}', [AuthController::class, 'resetPassword']);
+    // Route::get('password/reset/{token}', [AuthController::class, 'showResetForm'])->name('password.reset');
+
+    //Route::get('password/reset/{token}', 'AuthController@showResetForm')->name('password.reset');
+
     //Route::post('/reset-password', ResetPasswordController::class, 'reset');
     // Send reset link email
-    Route::post('/password/reset/send', [ResetPasswordController::class, 'sendResetLinkEmail'])->name('password.reset');
+    //Route::post('/password/reset/send', [ResetPasswordController::class, 'sendResetLinkEmail'])->name('password.reset');
 
     // Reset password
-    Route::post('/password/reset', [ResetPasswordController::class, 'reset']);
+    //Route::post('/password/reset', [ResetPasswordController::class, 'reset']);
 
 });
 
 
 Route::middleware('auth:sanctum')->
-get('/user', function (Request $request) {
-    return $request->user();
-});
+    get('/user', function (Request $request) {
+        return $request->user();
+    });

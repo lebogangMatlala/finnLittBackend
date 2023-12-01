@@ -33,14 +33,27 @@ Route::get('/contact', function () {
 });
 
 
+
+
+
 //Post Route
 
 Route::post('/contact', function () {
-    $data = request(['name', 'email', 'subject', 'message' ]);
+    $data = request(['name', 'email', 'subject', 'message']);
 
-        \Illuminate\support\Facades\Mail::to(users:'joshuaratau@gmail.com')
+    \Illuminate\support\Facades\Mail::to(users: 'joshuaratau@gmail.com')
         ->send(new \App\Maail\ContactMe($data));
 
-        return redirect ('contact-us');
+    return redirect('contact-us');
 });
 
+//forgot
+
+Route::group(['middleware' => ['web']], function () {
+    // Your routes here
+    Route::post('password/reset/{token}', [AuthController::class, 'resetPassword']);
+    Route::get('password/reset/{token}', [AuthController::class, 'showResetForm'])->name('password.reset');
+    Route::get('/success-page', [AuthController::class, 'successPage']);
+});
+//Route::post('password/reset/{token}', [AuthController::class, 'resetPassword']);
+// Route::get('password/reset/{token}', [AuthController::class, 'showResetForm'])->name('password.reset');
