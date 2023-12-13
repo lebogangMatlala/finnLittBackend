@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\View;
 use Monolog\Handler\SendGridHandler;
 
+
 class AuthController extends Controller
 {
     //
@@ -241,6 +242,7 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
         $token = Str::random(60);
+        
         $user->update([
             'reset_token' => $token,
             'remember_token' => Str::random(10), // Generate a new remember token
