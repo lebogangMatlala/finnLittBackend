@@ -87,27 +87,6 @@ class AuthController extends Controller
     }
 
 
-    // public function index()
-    // {
-    //     // $mailData = [
-    //     //     'title' => 'Mail from ItSolutionStuff.com',
-    //     //     'body' => 'This is for testing email using smtp.'
-    //     // ];
-    //     // Mail::to('lebogang@saatplay.com')->send(new FeedbackMail($mailData));
-
-    //     // dd("Email is sent successfully.");
-    //     $data = [
-    //         "subject" => "Tutorial Mail",
-    //         "body" => "Hello friends, Welcome to Metrowired Tutorial Mail Delivery!"
-    //     ];
-    //     // MailNotify class that is extend from Mailable class.
-    //     try {
-    //         Mail::to('lebogang@saatplay.com')->send(new FeedbackMail($data));
-    //         return response()->json(['Great! Successfully send in your mail']);
-    //     } catch (Exception $e) {
-    //         return response()->json(['Sorry! Please try again latter', $e]);
-    //     }
-    // }
 
     public function sendFeedback(Request $request)
     {
@@ -242,7 +221,7 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
         $token = Str::random(60);
-        
+
         $user->update([
             'reset_token' => $token,
             'remember_token' => Str::random(10), // Generate a new remember token
@@ -291,15 +270,27 @@ class AuthController extends Controller
             // If it's a web request, redirect back with errors
             return redirect()->back()->withErrors($validator)->withInput();
         }
+        // Find the user by email
+        $user = User::where('email', $request->email)->first();
+        //dd($user);
+        // Check if the user exists and the token is valid
+        if ($user) {
+            // Update the user's password
+            $user->forceFill([
+                'password' => Hash::make($request->password),
+            ])->save();
 
-        // Your logic to update the user's password
+            // Redirect to the success page with a success message
+            return Redirect::to('/success-page')->with('success', 'Password reset successfully');
+        }
 
-        // If successful, return a success message
-        return Redirect::to('/success-page')->with('success', 'Password reset successfully');
-
+        // If the user or token is invalid, redirect back with an error message
+        return redirect()->back()->withInput($request->only('email'))->withErrors(['email' => 'Invalid user or token']);
 
     }
 
-
-
 }
+
+
+
+

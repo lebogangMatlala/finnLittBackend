@@ -35,13 +35,19 @@
                             @csrf
                             <div class="form-group row mt-4 text-center">
                                 <div class="col-md-11">
+                                    <input id="email" type="email" class="form-control input-style" name="email"
+                                        required placeholder="Email">
+                                </div>
+                            </div>
+                            <div class="form-group row mt-4 text-center">
+                                <div class="col-md-11">
                                     <input id="password" type="password" class="form-control input-style" name="password"
                                         required placeholder="New Password">
                                 </div>
                             </div>
 
-                            <div class="form-group row mt-3">
-                                <div class="col-md-12">
+                            <div class="form-group row mt-4">
+                                <div class="col-md-11">
                                     <input id="password_confirmation" type="password" class="form-control input-style"
                                         name="password_confirmation" required placeholder="Confirm Password">
                                 </div>
